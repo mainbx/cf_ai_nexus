@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nexus — Your Personal Wiki</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <!-- Onboarding Overlay -->
+  <div id="onboarding" class="onboarding-overlay" style="display:none">
+    <div class="onboarding-card">
+      <!-- Step 1: Welcome -->
+      <div class="onboarding-step active" data-step="1">
+        <div class="onboarding-icon">🧠</div>
+        <h2>Welcome to Nexus</h2>
+        <p>Your AI-powered personal wiki. Store contacts, notes, documents, and more — organized by an AI that works for you.</p>
+        <button class="btn btn-primary btn-lg" onclick="onboardingNext()">Get Started</button>
+      </div>
+
+      <!-- Step 2: Name -->
+      <div class="onboarding-step" data-step="2">
+        <h2>What's your name?</h2>
+        <p>This helps the AI personalize your experience.</p>
+        <input type="text" id="onboard-name" class="onboard-input" placeholder="Your name">
+        <button class="btn btn-primary btn-lg" onclick="onboardingNext()">Continue</button>
+      </div>
+
+      <!-- Step 3: About You -->
+      <div class="onboarding-step" data-step="3">
+        <h2>Tell us about yourself</h2>
+        <p>Optional — helps the AI give better suggestions.</p>
+        <input type="number" id="onboard-age" class="onboard-input" placeholder="Age (optional)">
+        <input type="text" id="onboard-location" class="onboard-input" placeholder="City (optional)">
+        <select id="onboard-occupation" class="onboard-input">
+          <option value="">Occupation (optional)</option>
+          <option value="student">Student</option>
+          <option value="engineer">Engineer</option>
+          <option value="designer">Designer</option>
+          <option value="manager">Manager</option>
+          <option value="freelancer">Freelancer</option>
+          <option value="other">Other</option>
+        </select>
+        <button class="btn btn-primary btn-lg" onclick="onboardingNext()">Continue</button>
+      </div>
+
+      <!-- Step 4: What to store -->
+      <div class="onboarding-step" data-step="4">
+        <h2>What will you store?</h2>
+        <p>Select all that apply — you can always add more later.</p>
+        <div class="onboard-checklist">
+          <label class="onboard-check"><input type="checkbox" value="contacts" checked> 👤 Contacts</label>
+          <label class="onboard-check"><input type="checkbox" value="notes" checked> 📝 Notes & Ideas</label>
+          <label class="onboard-check"><input type="checkbox" value="emails"> 📧 Gmail Emails</label>
+          <label class="onboard-check"><input type="checkbox" value="bookmarks"> 🔗 Bookmarks</label>
+          <label class="onboard-check"><input type="checkbox" value="documents"> 📄 Documents & Files</label>
+          <label class="onboard-check"><input type="checkbox" value="diary"> 📔 Daily Diary</label>
+        </div>
+        <button class="btn btn-primary btn-lg" onclick="onboardingNext()">Continue</button>
+      </div>
+
+      <!-- Step 5: Ready -->
+      <div class="onboarding-step" data-step="5">
+        <div class="onboarding-icon">🚀</div>
+        <h2>You're all set!</h2>
+        <p>Start by chatting with the AI — paste some contacts, add a note, or just say hi.</p>
+        <div class="onboard-tips">
+          <div class="tip">💡 <strong>Smart Paste</strong> — dump messy data and AI organizes it</div>
+          <div class="tip">🔍 <strong>Search</strong> — ask questions about your stored knowledge</div>
+          <div class="tip">📔 <strong>Diary</strong> — AI writes daily summaries of your activity</div>
+          <div class="tip">🔒 <strong>Vault</strong> — organize important documents and files</div>
+        </div>
+        <button class="btn btn-primary btn-lg" onclick="completeOnboarding()">Start Using Nexus</button>
+      </div>
+
+      <div class="onboarding-progress">
+        <span class="dot active" data-dot="1"></span>
+        <span class="dot" data-dot="2"></span>
+        <span class="dot" data-dot="3"></span>
+        <span class="dot" data-dot="4"></span>
+        <span class="dot" data-dot="5"></span>
+      </div>
+    </div>
+  </div>
+
+  <div id="app" style="display:none">
+    <!-- Sidebar Navigation -->
+    <nav class="sidebar">
+      <div class="sidebar-brand">
+        <h1>Nexus</h1>
+        <span>Personal Wiki</span>
+      </div>
+
+      <div class="sidebar-user" id="sidebar-user" style="display:none">
+        <div class="user-avatar" id="user-avatar">?</div>
+        <span class="user-name" id="user-name"></span>
+      </div>
+
+      <div class="sidebar-nav">
+        <button class="nav-item active" data-page="chat">
+          <span class="nav-icon">💬</span> Ask AI
+        </button>
+        <button class="nav-item" data-page="all">
+          <span class="nav-icon">📚</span> All Entries
+          <span class="nav-count" id="count-all">0</span>
+        </button>
+
+        <div class="nav-section">Pages</div>
+        <button class="nav-item" data-page="contact">
+          <span class="nav-icon">👤</span> Contacts
+          <span class="nav-count" id="count-contact">0</span>
+        </button>
+        <button class="nav-item" data-page="note">
+          <span class="nav-icon">📝</span> Notes
+          <span class="nav-count" id="count-note">0</span>
+        </button>
+        <button class="nav-item" data-page="email">
+          <span class="nav-icon">📧</span> Emails
+          <span class="nav-count" id="count-email">0</span>
+        </button>
+        <button class="nav-item" data-page="bookmark">
+          <span class="nav-icon">🔗</span> Bookmarks
+          <span class="nav-count" id="count-bookmark">0</span>
+        </button>
+        <button class="nav-item" data-page="idea">
+          <span class="nav-icon">💡</span> Ideas
+          <span class="nav-count" id="count-idea">0</span>
+        </button>
+        <button class="nav-item" data-page="place">
+          <span class="nav-icon">📍</span> Places
+          <span class="nav-count" id="count-place">0</span>
+        </button>
+
+        <div class="nav-section">Journal</div>
+        <button class="nav-item" data-page="diary">
+          <span class="nav-icon">📔</span> Diary
+          <span class="nav-count" id="count-diary">0</span>
+        </button>
+
+        <div class="nav-section">Storage</div>
+        <button class="nav-item" data-page="vault">
+          <span class="nav-icon">🔒</span> Vault
+          <span class="nav-count" id="count-vault">0</span>
+        </button>
+      </div>
+
+      <div class="sidebar-footer">
+        <div class="nav-section">Integrations</div>
+        <button class="nav-item" data-page="gmail-setup">
+          <span class="nav-icon">📬</span> Gmail Import
+        </button>
+        <button class="nav-item" data-page="mcp-info">
+          <span class="nav-icon">🔌</span> API / MCP
+        </button>
+
+        <div class="nav-section">System</div>
+        <button class="nav-item" data-page="settings">
+          <span class="nav-icon">⚙️</span> Settings
+        </button>
+      </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="content">
+      <!-- Chat Page -->
+      <div id="page-chat" class="page active">
+        <div class="page-header">
+          <h2>AI Assistant</h2>
+          <div class="page-actions">
+            <button id="btn-paste" class="btn btn-secondary">📋 Smart Paste</button>
+            <button id="btn-new-chat" class="btn btn-secondary">New Chat</button>
+          </div>
+        </div>
+
+        <div id="chat-messages" class="chat-messages">
+          <div class="message assistant">
+            <div class="message-content">
+              <p id="chat-greeting">Hi! I'm Nexus, your personal wiki assistant. I can help you:</p>
+              <ul>
+                <li><strong>Add entries</strong> — paste contacts, notes, or any data and I'll organize it</li>
+                <li><strong>Search</strong> — ask me anything about your stored knowledge</li>
+                <li><strong>Organize</strong> — I can edit, tag, and manage your entries</li>
+              </ul>
+              <p>Try pasting some contacts or telling me something to remember!</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="chat-input-area">
+          <div id="smart-paste-indicator" class="smart-paste-indicator" style="display:none">
+            📋 Smart Paste Mode — AI will parse and organize your data
+            <button id="cancel-paste" class="btn-link">Cancel</button>
+          </div>
+          <div class="input-row">
+            <textarea id="chat-input" placeholder="Ask me anything or paste data to organize..." rows="2"></textarea>
+            <button id="btn-send" class="btn btn-primary">Send</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Diary Page -->
+      <div id="page-diary" class="page">
+        <div class="page-header">
+          <h2>Daily Diary</h2>
+          <div class="page-actions">
+            <button id="btn-generate-diary" class="btn btn-primary">✨ Generate Today's Summary</button>
+          </div>
+        </div>
+        <div class="diary-layout">
+          <div class="diary-stats">
+            <div class="stat-card">
+              <div class="stat-value" id="diary-streak">0</div>
+              <div class="stat-label">Day Streak</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value" id="diary-total">0</div>
+              <div class="stat-label">Total Entries</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value" id="diary-week-activity">0</div>
+              <div class="stat-label">This Week</div>
+            </div>
+          </div>
+          <div id="diary-entries" class="diary-entries">
+            <div class="empty-state">No diary entries yet. Click "Generate Today's Summary" to create one!</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Vault Page -->
+      <div id="page-vault" class="page">
+        <div class="page-header">
+          <h2>🔒 Vault</h2>
+          <div class="page-actions">
+            <button id="btn-vault-upload" class="btn btn-primary">📄 Upload Document</button>
+          </div>
+        </div>
+        <div class="vault-layout">
+          <div class="vault-info">
+            <p>Store and organize important documents in your personal wiki. Files are saved as entries that the AI can reference and search.</p>
+          </div>
+          <div class="vault-categories">
+            <div class="vault-category" data-vtype="id">
+              <span class="vault-cat-icon">🪪</span>
+              <span>ID Documents</span>
+              <span class="vault-cat-desc">Driver's license, passport, SSN card</span>
+            </div>
+            <div class="vault-category" data-vtype="financial">
+              <span class="vault-cat-icon">💰</span>
+              <span>Financial</span>
+              <span class="vault-cat-desc">Tax returns, bank statements, pay stubs</span>
+            </div>
+            <div class="vault-category" data-vtype="medical">
+              <span class="vault-cat-icon">🏥</span>
+              <span>Medical</span>
+              <span class="vault-cat-desc">Insurance cards, prescriptions, records</span>
+            </div>
+            <div class="vault-category" data-vtype="legal">
+              <span class="vault-cat-icon">📜</span>
+              <span>Legal</span>
+              <span class="vault-cat-desc">Contracts, leases, certificates</span>
+            </div>
+            <div class="vault-category" data-vtype="education">
+              <span class="vault-cat-icon">🎓</span>
+              <span>Education</span>
+              <span class="vault-cat-desc">Diplomas, transcripts, certifications</span>
+            </div>
+            <div class="vault-category" data-vtype="other">
+              <span class="vault-cat-icon">📁</span>
+              <span>Other</span>
+              <span class="vault-cat-desc">Anything else important</span>
+            </div>
+          </div>
+          <div id="vault-entries" class="entries-grid">
+            <div class="empty-state">No documents stored yet. Upload your first document!</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Gmail Setup Walkthrough Page -->
+      <div id="page-gmail-setup" class="page">
+        <div class="page-header">
+          <h2>📬 Gmail Integration Setup</h2>
+        </div>
+        <div class="walkthrough-layout">
+          <div class="walkthrough-intro">
+            <p>Connect your Gmail to import emails directly into your personal wiki. The AI will organize and summarize them for you.</p>
+          </div>
+
+          <div class="walkthrough-steps">
+            <div class="wt-step">
+              <div class="wt-step-num">1</div>
+              <div class="wt-step-content">
+                <h3>Create a Google Cloud Project</h3>
+                <p>Go to <a href="https://console.cloud.google.com" target="_blank" rel="noopener">console.cloud.google.com</a> and create a new project (it's free).</p>
+                <ol>
+                  <li>Click "Select a project" at the top, then "New Project"</li>
+                  <li>Name it anything (e.g., "Nexus Wiki")</li>
+                  <li>Click "Create"</li>
+                </ol>
+              </div>
+            </div>
+
+            <div class="wt-step">
+              <div class="wt-step-num">2</div>
+              <div class="wt-step-content">
+                <h3>Enable the Gmail API</h3>
+                <ol>
+                  <li>In your project, go to <strong>APIs & Services > Library</strong></li>
+                  <li>Search for "Gmail API"</li>
+                  <li>Click on it and press <strong>Enable</strong></li>
+                </ol>
+              </div>
+            </div>
+
+            <div class="wt-step">
+              <div class="wt-step-num">3</div>
+              <div class="wt-step-content">
+                <h3>Configure OAuth Consent Screen</h3>
+                <ol>
+                  <li>Go to <strong>APIs & Services > OAuth consent screen</strong></li>
+                  <li>Select <strong>External</strong> user type</li>
+                  <li>Fill in the app name (e.g., "Nexus Wiki") and your email</li>
+                  <li>Add the scope: <code>gmail.readonly</code></li>
+                  <li>Under <strong>Test users</strong>, add your own Gmail address</li>
+                  <li>Save and continue through each step</li>
+                </ol>
+                <div class="wt-note">⚠️ Keep the app in "Testing" mode — no verification needed for personal use!</div>
+              </div>
+            </div>
+
+            <div class="wt-step">
+              <div class="wt-step-num">4</div>
+              <div class="wt-step-content">
+                <h3>Create OAuth Credentials</h3>
+                <ol>
+                  <li>Go to <strong>APIs & Services > Credentials</strong></li>
+                  <li>Click <strong>Create Credentials > OAuth client ID</strong></li>
+                  <li>Application type: <strong>Web application</strong></li>
+                  <li>Add authorized redirect URI: <code id="gmail-redirect-uri">http://localhost:8787/api/gmail/callback</code></li>
+                  <li>Click <strong>Create</strong></li>
+                  <li>Copy the <strong>Client ID</strong> and <strong>Client Secret</strong></li>
+                </ol>
+              </div>
+            </div>
+
+            <div class="wt-step">
+              <div class="wt-step-num">5</div>
+              <div class="wt-step-content">
+                <h3>Add Credentials to Nexus</h3>
+                <p>Add these to your <code>.dev.vars</code> file (local) or as Cloudflare secrets (deployed):</p>
+                <pre class="wt-code">GOOGLE_CLIENT_ID=your-client-id-here
+GOOGLE_CLIENT_SECRET=your-client-secret-here</pre>
+                <p>Then restart the dev server.</p>
+              </div>
+            </div>
+
+            <div class="wt-step">
+              <div class="wt-step-num">6</div>
+              <div class="wt-step-content">
+                <h3>Connect & Import</h3>
+                <p>Once credentials are set up:</p>
+                <button id="btn-gmail-connect" class="btn btn-primary">Connect Gmail</button>
+                <p style="margin-top:8px;font-size:13px;color:var(--text-dim)">You'll be redirected to Google to authorize. After authorizing, tell the AI: "Import my recent emails"</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Settings Page -->
+      <div id="page-settings" class="page">
+        <div class="page-header">
+          <h2>Settings</h2>
+        </div>
+        <div class="settings-layout">
+          <div class="settings-section">
+            <h3>AI Configuration</h3>
+            <p class="settings-desc">Enter your Anthropic API key to enable the AI assistant. Get one at <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">console.anthropic.com</a></p>
+            <label>Anthropic API Key
+              <div class="settings-input-row">
+                <input type="password" id="setting-anthropic-key" placeholder="sk-ant-..." class="settings-input">
+                <button class="btn btn-primary" onclick="saveSetting('ANTHROPIC_API_KEY', 'setting-anthropic-key')">Save</button>
+              </div>
+            </label>
+          </div>
+
+          <div class="settings-section">
+            <h3>Gmail Integration (Optional)</h3>
+            <p class="settings-desc">To import emails, create Google OAuth credentials. See the <a href="#" onclick="navigateTo('gmail-setup'); return false;">Gmail setup guide</a> for instructions.</p>
+            <label>Google Client ID
+              <div class="settings-input-row">
+                <input type="text" id="setting-google-id" placeholder="xxxx.apps.googleusercontent.com" class="settings-input">
+                <button class="btn btn-primary" onclick="saveSetting('GOOGLE_CLIENT_ID', 'setting-google-id')">Save</button>
+              </div>
+            </label>
+            <label>Google Client Secret
+              <div class="settings-input-row">
+                <input type="password" id="setting-google-secret" placeholder="GOCSPX-..." class="settings-input">
+                <button class="btn btn-primary" onclick="saveSetting('GOOGLE_CLIENT_SECRET', 'setting-google-secret')">Save</button>
+              </div>
+            </label>
+          </div>
+
+          <div class="settings-section">
+            <h3>Status</h3>
+            <div id="settings-status" class="settings-status">Loading...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MCP Info Page -->
+      <div id="page-mcp-info" class="page">
+        <div class="page-header">
+          <h2>API / MCP Endpoint</h2>
+        </div>
+        <div class="walkthrough-layout">
+          <div class="walkthrough-intro">
+            <p>Nexus exposes a REST API that external AI agents, tools, or scripts can use to read, search, and manage your wiki data programmatically.</p>
+          </div>
+
+          <div class="settings-section">
+            <h3>Base URL</h3>
+            <pre class="wt-code" id="mcp-base-url"></pre>
+          </div>
+
+          <div class="settings-section">
+            <h3>Available Endpoints</h3>
+            <table class="mcp-table">
+              <thead>
+                <tr><th>Method</th><th>Endpoint</th><th>Description</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>GET</td><td>/mcp</td><td>Service discovery — lists all endpoints</td></tr>
+                <tr><td>POST</td><td>/mcp/search</td><td>Semantic search: <code>{"query": "..."}</code></td></tr>
+                <tr><td>GET</td><td>/mcp/entries</td><td>List entries: <code>?type=contact&limit=10</code></td></tr>
+                <tr><td>GET</td><td>/mcp/entries/:id</td><td>Get a single entry by ID</td></tr>
+                <tr><td>POST</td><td>/mcp/entries</td><td>Create entry: <code>{"type","title","content"}</code></td></tr>
+                <tr><td>PUT</td><td>/mcp/entries/:id</td><td>Update an entry</td></tr>
+                <tr><td>DELETE</td><td>/mcp/entries/:id</td><td>Delete an entry</td></tr>
+                <tr><td>GET</td><td>/mcp/types</td><td>List entry types with counts</td></tr>
+                <tr><td>POST</td><td>/mcp/ask</td><td>Ask AI a question: <code>{"question": "..."}</code></td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="settings-section">
+            <h3>Example: Search your wiki</h3>
+            <pre class="wt-code">curl -X POST <span id="mcp-example-url"></span>/mcp/search \
+  -H "Content-Type: application/json" \
+  -d '{"query": "John email address"}'</pre>
+          </div>
+
+          <div class="settings-section">
+            <h3>Example: Create an entry</h3>
+            <pre class="wt-code">curl -X POST <span id="mcp-example-url2"></span>/mcp/entries \
+  -H "Content-Type: application/json" \
+  -d '{"type":"contact","title":"Jane Doe","content":"{\"name\":\"Jane\",\"email\":\"jane@example.com\"}"}'</pre>
+          </div>
+
+          <div class="settings-section">
+            <h3>Use with AI Agents</h3>
+            <p class="settings-desc">Any AI agent that supports HTTP tools can use these endpoints to read/write your personal wiki. Point the agent to <code id="mcp-discovery-url"></code> for service discovery.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Entries Page (reused for all types) -->
+      <div id="page-entries" class="page">
+        <div class="page-header">
+          <h2 id="entries-page-title">All Entries</h2>
+          <div class="page-actions">
+            <input type="text" id="search-input" class="search-field" placeholder="Search...">
+            <button id="btn-add" class="btn btn-primary">+ Add</button>
+          </div>
+        </div>
+        <div id="entries-grid" class="entries-grid">
+          <div class="empty-state">No entries yet. Use the AI chat to add some!</div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Entry Detail Modal -->
+    <div id="modal-overlay" class="modal-overlay" style="display:none">
+      <div class="modal">
+        <div class="modal-header">
+          <h3 id="modal-title">Entry</h3>
+          <button id="modal-close" class="btn-link">&times;</button>
+        </div>
+        <div id="modal-body" class="modal-body"></div>
+        <div class="modal-footer">
+          <button id="modal-delete" class="btn btn-danger">Delete</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Manual Add Modal -->
+    <div id="add-modal-overlay" class="modal-overlay" style="display:none">
+      <div class="modal">
+        <div class="modal-header">
+          <h3>Add Entry</h3>
+          <button id="add-modal-close" class="btn-link">&times;</button>
+        </div>
+        <div class="modal-body">
+          <label>Type
+            <select id="add-type">
+              <option value="note">Note</option>
+              <option value="contact">Contact</option>
+              <option value="bookmark">Bookmark</option>
+              <option value="idea">Idea</option>
+              <option value="place">Place</option>
+              <option value="email">Email</option>
+            </select>
+          </label>
+          <label>Title <input type="text" id="add-title" placeholder="Entry title"></label>
+          <label>Content <textarea id="add-content" rows="5" placeholder="Entry content..."></textarea></label>
+          <label>Tags <input type="text" id="add-tags" placeholder="comma, separated, tags"></label>
+        </div>
+        <div class="modal-footer">
+          <button id="add-modal-save" class="btn btn-primary">Save</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Vault Upload Modal -->
+    <div id="vault-modal-overlay" class="modal-overlay" style="display:none">
+      <div class="modal">
+        <div class="modal-header">
+          <h3>Upload Document to Vault</h3>
+          <button id="vault-modal-close" class="btn-link">&times;</button>
+        </div>
+        <div class="modal-body">
+          <label>File
+            <input type="file" id="vault-file" accept=".png,.jpg,.jpeg,.heic,.heif,.pdf" class="vault-file-input">
+            <div class="vault-file-hint">Accepts: PNG, JPG, HEIC (iPhone photos), PDF</div>
+          </label>
+          <label>Document Name <input type="text" id="vault-name" placeholder="e.g., Driver's License"></label>
+          <label>Category
+            <select id="vault-category">
+              <option value="id">🪪 ID Documents</option>
+              <option value="financial">💰 Financial</option>
+              <option value="medical">🏥 Medical</option>
+              <option value="legal">📜 Legal</option>
+              <option value="education">🎓 Education</option>
+              <option value="other">📁 Other</option>
+            </select>
+          </label>
+          <label>Description <textarea id="vault-desc" rows="3" placeholder="Notes about this document..." class="no-resize"></textarea></label>
+          <label>Tags <input type="text" id="vault-tags" placeholder="comma, separated, tags"></label>
+        </div>
+        <div class="modal-footer">
+          <button id="vault-modal-save" class="btn btn-primary">Save to Vault</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+</html>
