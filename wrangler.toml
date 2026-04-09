@@ -1,0 +1,26 @@
+name = "cf-ai-nexus"
+main = "src/index.ts"
+compatibility_date = "2024-12-30"
+compatibility_flags = ["nodejs_compat"]
+
+[assets]
+directory = "./frontend"
+
+[ai]
+binding = "AI"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "nexus-db"
+database_id = "91caa063-9dd0-4fce-808a-ad42cab2e0ad"
+
+# Vectorize requires additional API token permissions to create the index
+# Uncomment after running: npx wrangler vectorize create nexus-embeddings --dimensions=768 --metric=cosine
+# [[vectorize]]
+# binding = "VECTORIZE"
+# index_name = "nexus-embeddings"
+
+# API keys go in .dev.vars (local) or `wrangler secret put` (deployed)
+# NEVER put secrets in [vars] — they'd be committed to git
+# Required: ANTHROPIC_API_KEY
+# Optional: GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET
