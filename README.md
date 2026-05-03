@@ -81,7 +81,7 @@ User: "here's my contacts: John Smith john@gmail.com 555-1234,
 ### 1. Clone and install
 
 ```bash
-git clone https://github.com/mainbx/cf_ai_nexus.git
+git clone https://github.com/axm0/cf_ai_nexus.git
 cd cf_ai_nexus
 npm install
 ```
